@@ -30,6 +30,9 @@ def RemoveUselessChar(x):
         output=output[1:]
     return output
 
+st.title("Análisis de N-gramas")
+st.text("Devuelve los ngramas de las consultas que les pasemos en el csv extraído de Search Console")
+st.text("Condiciones: el csv que le pasemos debe tener los campos 'query' e 'impressions'")
 ngramas=st.number_input(min_value=2,max_value=6,value=2,label='Seleccione n-gramas (número de palabras agrupadas)')
 f_entrada=st.file_uploader('CSV con datos de Search Console', type='csv')
 
