@@ -6,7 +6,7 @@ import numpy as np
 
 #Devolvemos el volumen de cada n-grama
 def GetVolume(query):
-    df_out= df[df['query'].str.contains(query)]
+    df_out= df[df['query'].str.contains(query,regex=False)]
     return df_out['impressions'].sum()
 
 #Eliminamos caracteres no necesarios
