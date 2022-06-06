@@ -30,10 +30,13 @@ def RemoveUselessChar(x):
         output=output[1:]
     return output
 
+st.set_page_config(
+   page_title="Análisis de N-gramas"
+)
 st.title("Análisis de N-gramas")
 st.text("Devuelve los ngramas de las consultas que les pasemos en el csv extraído de Search Console")
 st.text("Condiciones: el csv que le pasemos debe tener los campos 'query' e 'impressions'")
-ngramas=st.number_input(min_value=2,max_value=6,value=2,label='Seleccione n-gramas (número de palabras agrupadas)')
+ngramas=st.number_input(min_value=2,max_value=8,value=2,label='Seleccione n-gramas (número de palabras agrupadas)')
 f_entrada=st.file_uploader('CSV con datos de Search Console', type='csv')
 
 
@@ -53,17 +56,40 @@ if f_entrada is not None:
             i+=1
     
     #Indicamos el número de palabras más comunes a extraer
-    top=counts.most_common(2000)
+    top=counts.most_common(4000)
     x = pd.DataFrame(top, columns=['query','count'])
     
     #Aplicamos funciones para eliminar caracteres innecsarios y obtener el volumen
     x['query'] = x['query'].apply(RemoveUselessChar)
     x['query'] = x['query'].str.replace(',','')
     x['Volume'] = x['query'].apply(GetVolume)
+    x['words']= x['query'].str.split(' ').str.len()
     st.download_button(
-                label="Descargar como CSV",
+                label="Descargar como CSV (Completo)",
                 data=x.to_csv(index = False).encode('utf-8'),
                 file_name='salida.csv',
                 mime='text/csv',
             )
-    st.dataframe(x)
+    
+    st.dataframe(x.iloc[:,[0,1,2]], height=500)
+    # CSS to inject contained in a string
+    hide_table_row_index = """
+            <style>
+            tbody th {display:none}
+            .blank {display:none}
+            </style>
+            """
+    # Inject CSS with Markdown
+    st.markdown(hide_table_row_index, unsafe_allow_html=True)
+    j=ngramas
+    while j > 0:
+        st.subheader(str(j)+" palabras")
+        sub=x[x["words"]==j].iloc[:,[0,1,2]]
+        st.dataframe(sub, height=500)
+        st.download_button(
+                label='Descargar como CSV ('+str(j)+' palabras)',
+                data=sub.to_csv(index = False).encode('utf-8'),
+                file_name='salida_'+str(j)+'.csv',
+                mime='text/csv',
+            )
+        j-=1
